@@ -29,11 +29,17 @@ MacBackups/
 
 # Fichiers générés dans la destination
 destination/
-├── homebrew-exports/        # 🍺 Exports Homebrew
+├── .macbackups-homebrew/    # 🍺 Exports Homebrew
 │   ├── brew-formulas.txt    # Liste des paquets ligne de commande
 │   ├── brew-casks.txt       # Liste des applications graphiques
 │   └── restore-homebrew.sh  # Script de restauration automatique
 └── [vos fichiers sauvegardés]
+
+# Fichiers temporaires locaux (générés pendant la sauvegarde)
+~/.macbackups-homebrew/      # Répertoire temporaire pour l'export Homebrew
+├── brew-formulas.txt
+├── brew-casks.txt
+└── restore-homebrew.sh
 ```
 
 ## 🚀 Installation
@@ -161,19 +167,38 @@ Le script crée automatiquement un fichier d'exclusion avec les éléments suiva
 
 Le système sauvegarde automatiquement vos paquets Homebrew pour pouvoir restaurer votre environnement facilement.
 
+### 🔄 Mécanique de sauvegarde
+
+Pour contourner les restrictions de permissions d'iCloud Drive, l'export Homebrew utilise un processus en deux étapes :
+
+1. **Export local** : Homebrew génère les fichiers dans `~/.macbackups-homebrew/` (répertoire local)
+2. **Copie RSYNC** : Les fichiers sont copiés vers la destination par RSYNC avec les droits existants
+
+Cette approche garantit la compatibilité avec iCloud Drive tout en automatisant complètement le processus.
+
 ### Fichiers générés
 
-- **`brew-formulas.txt`** : Liste des paquets ligne de commande installés
-- **`brew-casks.txt`** : Liste des applications graphiques installées
-- **`restore-homebrew.sh`** : Script de restauration automatique
+- **`~/.macbackups-homebrew/brew-formulas.txt`** : Liste des paquets ligne de commande installés
+- **`~/.macbackups-homebrew/brew-casks.txt`** : Liste des applications graphiques installées
+- **`~/.macbackups-homebrew/restore-homebrew.sh`** : Script de restauration automatique
+
+### ⚠️ Important : Droits iCloud Drive
+
+Si vous utilisez iCloud Drive comme destination, assurez-vous que :
+
+1. **RSYNC a les droits d'écriture** : RSYNC doit pouvoir écrire dans `~/Library/Mobile Documents/`
+2. **Configuration des droits** : Donnez les permissions complètes à votre terminal dans les préférences macOS
+3. **Test manuel** : Testez d'abord la sauvegarde manuellement avant d'automatiser avec launchd
+
+Pour les destinations locales (`~/Documents/MacBackups`), aucune configuration particulière n'est requise.
 
 ### Restauration de l'environnement Homebrew
 
 Pour restaurer vos paquets sur une nouvelle machine ou après une réinstallation :
 
 ```bash
-# Se rendre dans le répertoire des exports Homebrew
-cd destination/homebrew-exports/
+# Se rendre dans le répertoire des exports Homebrew (dans la destination)
+cd destination/.macbackups-homebrew/
 
 # Lancer la restauration automatique
 ./restore-homebrew.sh
@@ -191,6 +216,7 @@ Le script va :
 - Seule la dernière version est conservée (pas de versionnement)
 - Le script de restauration utilise les fichiers `brew-formulas.txt` et `brew-casks.txt`
 - La restauration nécessite que Homebrew soit installé au préalable
+- Compatible avec iCloud Drive grâce à l'approche RSYNC en deux étapes
 
 ## 🔄 Utilisation
 

@@ -133,8 +133,8 @@ export_homebrew_list() {
         return 0
     fi
 
-    # Créer le répertoire de destination pour les exports Homebrew s'il n'existe pas
-    local homebrew_export_dir="$DEST_DIR/homebrew-exports"
+    # Créer le répertoire local pour les exports Homebrew
+    local homebrew_export_dir="$HOME/.macbackups-homebrew"
     mkdir -p "$homebrew_export_dir"
 
     # Exporter la liste des paquets (formulas)
@@ -179,9 +179,9 @@ echo "Mise à jour de Homebrew..."
 # Répertoire contenant les exports
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Fichiers fixes à utiliser
-FORMULAS_FILE="$SCRIPT_DIR/brew-formulas.txt"
-CASKS_FILE="$SCRIPT_DIR/brew-casks.txt"
+# Fichiers fixes à utiliser (dans le répertoire homebrew-exports)
+FORMULAS_FILE="$SCRIPT_DIR/homebrew-exports/brew-formulas.txt"
+CASKS_FILE="$SCRIPT_DIR/homebrew-exports/brew-casks.txt"
 
 # Restaurer les formulas
 if [[ -f "$FORMULAS_FILE" ]]; then

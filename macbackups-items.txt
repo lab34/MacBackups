@@ -24,6 +24,9 @@ workspace
 .config
 .ssh
 
+# 🍺 Exports Homebrew (générés automatiquement)
+.macbackups-homebrew/
+
 # Autres répertoires utiles
 Library/Application Support
 Library/Fonts
