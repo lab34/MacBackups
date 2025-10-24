@@ -14,6 +14,7 @@ Un système de sauvegarde automatisé pour macOS utilisant RSYNC pour synchronis
 - **Logging complet** : Logs détaillés avec timestamps et rotation automatique
 - **Exclusions intelligentes** : Filtre automatiquement les fichiers système et temporaires
 - **Compatible iCloud** : Destination configurable pour synchroniser avec iCloud Drive
+- **Export Homebrew** : Sauvegarde automatique des paquets Homebrew avec script de restauration
 
 ## 📁 Structure du projet
 
@@ -25,6 +26,14 @@ MacBackups/
 ├── macbackups-items.txt      # Liste des fichiers/dossiers à sauvegarder
 ├── .gitignore               # Fichiers à ignorer pour Git
 └── README.md                # Ce fichier
+
+# Fichiers générés dans la destination
+destination/
+├── homebrew-exports/        # 🍺 Exports Homebrew
+│   ├── brew-formulas.txt    # Liste des paquets ligne de commande
+│   ├── brew-casks.txt       # Liste des applications graphiques
+│   └── restore-homebrew.sh  # Script de restauration automatique
+└── [vos fichiers sauvegardés]
 ```
 
 ## 🚀 Installation
@@ -147,6 +156,41 @@ Le script crée automatiquement un fichier d'exclusion avec les éléments suiva
 - Fichiers temporaires (`.tmp`, `.temp`, `.cache`)
 - Caches et logs (`~/.npm`, `~/Library/Caches`)
 - Corbeille (`~/.Trash`)
+
+## 🍺 Export Homebrew
+
+Le système sauvegarde automatiquement vos paquets Homebrew pour pouvoir restaurer votre environnement facilement.
+
+### Fichiers générés
+
+- **`brew-formulas.txt`** : Liste des paquets ligne de commande installés
+- **`brew-casks.txt`** : Liste des applications graphiques installées
+- **`restore-homebrew.sh`** : Script de restauration automatique
+
+### Restauration de l'environnement Homebrew
+
+Pour restaurer vos paquets sur une nouvelle machine ou après une réinstallation :
+
+```bash
+# Se rendre dans le répertoire des exports Homebrew
+cd destination/homebrew-exports/
+
+# Lancer la restauration automatique
+./restore-homebrew.sh
+```
+
+Le script va :
+1. Mettre à jour Homebrew
+2. Installer automatiquement toutes vos formulas
+3. Installer automatiquement tous vos casks
+4. Afficher un résumé de la restauration
+
+### Notes importantes
+
+- L'export se fait automatiquement à chaque sauvegarde
+- Seule la dernière version est conservée (pas de versionnement)
+- Le script de restauration utilise les fichiers `brew-formulas.txt` et `brew-casks.txt`
+- La restauration nécessite que Homebrew soit installé au préalable
 
 ## 🔄 Utilisation
 

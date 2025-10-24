@@ -123,6 +123,91 @@ backup_item() {
     fi
 }
 
+# Fonction pour exporter la liste des paquets Homebrew
+export_homebrew_list() {
+    log "Exportation de la liste des paquets Homebrew..."
+
+    # Vérifier si Homebrew est installé
+    if ! command -v /opt/homebrew/bin/brew &> /dev/null; then
+        log "AVERTISSEMENT: Homebrew n'est pas installé, export ignoré"
+        return 0
+    fi
+
+    # Créer le répertoire de destination pour les exports Homebrew s'il n'existe pas
+    local homebrew_export_dir="$DEST_DIR/homebrew-exports"
+    mkdir -p "$homebrew_export_dir"
+
+    # Exporter la liste des paquets (formulas)
+    local formulas_file="$homebrew_export_dir/brew-formulas.txt"
+    /opt/homebrew/bin/brew list --formula > "$formulas_file" 2>/dev/null || {
+        log "ERREUR: Impossible d'exporter la liste des formulas Homebrew"
+        return 1
+    }
+    log "Liste des formulas exportée: $formulas_file"
+
+    # Exporter la liste des casks (applications)
+    local casks_file="$homebrew_export_dir/brew-casks.txt"
+    /opt/homebrew/bin/brew list --cask > "$casks_file" 2>/dev/null || {
+        log "AVERTISSEMENT: Impossible d'exporter la liste des casks Homebrew (pas de casks installés?)"
+    }
+    log "Liste des casks exportée: $casks_file"
+
+    # Créer/mettre à jour le script de restauration (un seul fichier, pas de versionnement)
+    local restore_script="$homebrew_export_dir/restore-homebrew.sh"
+    cat > "$restore_script" << 'EOF'
+#!/bin/bash
+
+# Script de restauration des paquets Homebrew
+# Généré automatiquement par MacBackups
+# Utilise les fichiers d'export les plus récents disponibles
+
+set -euo pipefail
+
+echo "Restauration des paquets Homebrew..."
+
+# Vérifier si Homebrew est installé
+if ! command -v /opt/homebrew/bin/brew &> /dev/null; then
+    echo "ERREUR: Homebrew n'est pas installé. Veuillez d'abord installer Homebrew:"
+    echo "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+    exit 1
+fi
+
+# Mettre à jour Homebrew
+echo "Mise à jour de Homebrew..."
+/opt/homebrew/bin/brew update
+
+# Répertoire contenant les exports
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Fichiers fixes à utiliser
+FORMULAS_FILE="$SCRIPT_DIR/brew-formulas.txt"
+CASKS_FILE="$SCRIPT_DIR/brew-casks.txt"
+
+# Restaurer les formulas
+if [[ -f "$FORMULAS_FILE" ]]; then
+    echo "Installation des formulas depuis: $(basename "$FORMULAS_FILE")"
+    xargs /opt/homebrew/bin/brew install < "$FORMULAS_FILE"
+else
+    echo "AVERTISSEMENT: Fichier de formulas introuvable"
+fi
+
+# Restaurer les casks
+if [[ -f "$CASKS_FILE" ]]; then
+    echo "Installation des casks depuis: $(basename "$CASKS_FILE")"
+    xargs /opt/homebrew/bin/brew install --cask < "$CASKS_FILE"
+else
+    echo "AVERTISSEMENT: Fichier de casks introuvable"
+fi
+
+echo "Restauration terminée!"
+EOF
+
+    chmod +x "$restore_script"
+    log "Script de restauration mis à jour: $restore_script"
+
+    return 0
+}
+
 # Fonction principale de sauvegarde
 perform_backup() {
     log "Début de la sauvegarde"
@@ -132,6 +217,9 @@ perform_backup() {
 
     # Vérifier les répertoires
     check_directories
+
+    # Exporter la liste des paquets Homebrew
+    export_homebrew_list
 
     # Préparer le fichier d'exclusion
     prepare_exclude_file
