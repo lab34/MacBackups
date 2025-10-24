@@ -29,14 +29,32 @@ MacBackups/
 
 ## 🚀 Installation
 
-### 1. Cloner le repository
+### Prérequis
+
+- **macOS 10.15+**
+- **Homebrew** (pour l'installation de RSYNC)
+- **RSYNC 3.4+** (version complète, pas OpenRSYNC)
+
+### 1. Installer RSYNC complet
+
+macOS inclus OpenRSYNC par défaut, mais il a des limitations avec iCloud Drive. Installez la version complète :
+
+```bash
+# Installer RSYNC via Homebrew
+brew install rsync
+
+# Vérifier la version
+/opt/homebrew/bin/rsync --version
+```
+
+### 2. Cloner le repository
 
 ```bash
 git clone https://github.com/lab34/MacBackups.git
 cd MacBackups
 ```
 
-### 2. Personnaliser la configuration
+### 3. Personnaliser la configuration
 
 Éditez le fichier `backup.conf` pour adapter les chemins à votre configuration :
 
@@ -46,12 +64,13 @@ SOURCE_DIR="$HOME"
 
 # Répertoire de destination (modifiable selon vos besoins)
 DEST_DIR="$HOME/Documents/MacBackups"
+# Pour iCloud Drive: "$HOME/Library/Mobile Documents/com~apple~CloudDocs/MacBackups"
 
 # Fichier contenant la liste des éléments à sauvegarder
 BACKUP_ITEMS_FILE="$HOME/.macbackups-items.txt"
 ```
 
-### 3. Configurer les éléments à sauvegarder
+### 4. Configurer les éléments à sauvegarder
 
 Copiez et personnalisez le fichier des éléments à sauvegarder :
 
@@ -61,7 +80,7 @@ cp macbackups-items.txt ~/.macbackups-items.txt
 
 Éditez `~/.macbackups-items.txt` pour ajouter/supprimer les fichiers et dossiers que vous souhaitez sauvegarder.
 
-### 4. Créer les répertoires nécessaires
+### 5. Créer les répertoires nécessaires
 
 ```bash
 # Créer le répertoire de destination
@@ -71,14 +90,14 @@ mkdir -p "$HOME/Documents/MacBackups"
 mkdir -p "$HOME/logs"
 ```
 
-### 5. Tester manuellement
+### 6. Tester manuellement
 
 ```bash
 chmod +x backup.sh
 ./backup.sh
 ```
 
-### 6. Installer le service automatisé (optionnel)
+### 7. Installer le service automatisé (optionnel)
 
 ```bash
 # Copier le fichier de service launchd
@@ -200,15 +219,42 @@ launchctl list | grep macbackups
    mkdir -p "$HOME/Documents/MacBackups"
    ```
 
-3. **Service ne démarre pas**
+3. **RSYNC version incompatible**
+
+   **Symptômes :**
+   - Erreurs `mkstempsock: Invalid argument`
+   - Erreurs `Operation not permitted` avec iCloud Drive
+
+   **Solution :**
+   ```bash
+   # Installer la version complète de RSYNC
+   brew install rsync
+
+   # Vérifier que vous utilisez la bonne version
+   /opt/homebrew/bin/rsync --version
+   # Doit afficher "rsync version 3.4.x" et non "openrsync"
+   ```
+
+4. **Service ne démarre pas**
    ```bash
    # Vérifier les erreurs
    launchctl list | grep macbackups
    cat ~/logs/macbackups-stderr.log
    ```
 
-4. **Fichiers exclus non désirés**
+5. **Fichiers exclus non désirés**
    - Éditez `~/.macbackups-exclude.txt` pour modifier les exclusions
+
+6. **Erreurs avec iCloud Drive**
+
+   **Symptômes :**
+   - Erreurs de permissions avec `~/Library/Mobile Documents/`
+   - Synchronisation incomplète
+
+   **Solutions :**
+   - Assurez-vous d'utiliser RSYNC 3.4+ (voir point 3)
+   - Vérifiez que iCloud Drive est activé et synchronisé
+   - Testez avec un répertoire local avant d'utiliser iCloud Drive
 
 ### Réinitialisation complète
 

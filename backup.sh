@@ -110,7 +110,7 @@ backup_item() {
     # --delete: supprime les fichiers dans la destination s'ils n'existent plus dans la source
     # --exclude-from: utilise le fichier d'exclusion
     # --log-file: fichier de log RSYNC
-    rsync -avh --progress --delete \
+    /opt/homebrew/bin/rsync -avh --progress --delete \
         --exclude-from="$EXCLUDE_FILE" \
         --log-file="$LOG_FILE" \
         "$source_path" "$dest_path"
@@ -143,7 +143,11 @@ perform_backup() {
     fi
 
     # Lire les éléments à sauvegarder depuis le fichier (un par ligne)
-    readarray -t items < "$BACKUP_ITEMS_FILE"
+    # Utiliser une méthode compatible avec toutes les versions de bash
+    local items=()
+    while IFS= read -r line; do
+        items+=("$line")
+    done < "$BACKUP_ITEMS_FILE"
 
     local success_count=0
     local error_count=0
