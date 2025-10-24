@@ -1,0 +1,40 @@
+# Fichiers de sauvegarde et logs
+*.log
+*.backup
+*.bak
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*~
+
+# Fichiers système macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environnements virtuels Python
+venv/
+env/
+ENV/
+.venv/
+
+# Fichiers de configuration sensibles (à adapter selon les besoins)
+# config.local
+# secrets.conf
+# .env
+
+# Éditeurs de texte
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup files spécifiques
+backup-exclude.txt
+*.backup-list

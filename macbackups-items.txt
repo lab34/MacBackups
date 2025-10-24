@@ -1,0 +1,35 @@
+# Fichier de configuration des éléments à sauvegarder
+# Un élément par ligne, comme un fichier .gitignore
+# Utilisez des chemins relatifs à partir de votre répertoire home ($HOME)
+
+# Répertoires personnels principaux
+Documents
+Desktop
+Downloads
+Pictures
+Movies
+Music
+
+# Projets et développement
+Projects
+dev
+github
+workspace
+
+# Fichiers de configuration importants
+.bash_profile
+.bashrc
+.zshrc
+.zprofile
+.config
+.ssh
+
+# Autres répertoires utiles
+Library/Application Support
+Library/Fonts
+Library/Scripts
+
+# Exemples de fichiers spécifiques
+# Documents/fichier_important.txt
+# .gnupg/
+# .local/share/notes/
